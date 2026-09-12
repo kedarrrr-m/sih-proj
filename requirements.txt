@@ -1,0 +1,7 @@
+# SIH adaptive path-planning bridge — minimal deps for bridge_starter.py (Phase 0-2)
+numpy>=1.26
+scipy>=1.11
+matplotlib>=3.8
+# added in later phases (planner / perception bridge):
+# shapely>=2.0
+# opencv-python>=4.9

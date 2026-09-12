@@ -1,0 +1,13 @@
+# Phase 1 (perception / domain-gap) deps — install in the Colab/GPU environment where
+# FusionSegNet_v5.ipynb + nuScenes + IDD live. NOT needed for the bridge (see requirements.txt).
+# Pin exact versions to match your trained checkpoint before reporting numbers (Bible Part XVI).
+torch>=2.2
+torchvision>=0.17
+numpy>=1.26
+opencv-python>=4.9
+nuscenes-devkit>=1.1.11   # HD-map + LiDAR fusion labelling (the 4-voter pipeline)
+pyquaternion>=0.9.9
+shapely>=2.0
+albumentations>=1.4        # RandomRain/RandomFog/RandomShadow augmentation (§4.5)
+matplotlib>=3.8
+tqdm>=4.66

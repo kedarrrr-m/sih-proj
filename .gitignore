@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+
+# Perception heavy assets (kept in Colab/Drive, not the repo)
+*.pth
+*.onnx
+*.npy
+data/

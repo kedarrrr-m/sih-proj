@@ -1,4 +1,4 @@
-# 🗺️ BUILD MAP — SIH 2026 · Adaptive Path Planning & Collision Avoidance (MathWorks, PS 26037/26038)
+# 🗺️ BUILD MAP — SIH 2026 · Adaptive Path Planning & Collision Avoidance (MathWorks, PS 26037)
 
 Generated from **Project Bible v5** + `bridge_starter.py`. Every technical decision below traces to a specific part of the bible; nothing is invented. Where the bible marks a decision **Open** (Appendix C), it appears as an explicit *gating token* rather than a guessed answer.
 
