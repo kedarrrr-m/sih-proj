@@ -106,7 +106,9 @@ class SafetyController:
                  ego_speed: float,
                  planned_path: List[Tuple[float, float, float]],
                  costmap: CostMap,
-                 agents: List[TrackedAgent]) -> Tuple[SafetyState, float, str]:
+                 agents: List[TrackedAgent],
+                 phantom_agents: Optional[List[TrackedAgent]] = None,
+                 occlusion_mask: Optional[np.ndarray] = None) -> Tuple[SafetyState, float, str]:
         """
         Evaluates the current state and determines safety command.
 
@@ -128,10 +130,11 @@ class SafetyController:
             ego_traj.append((pt[0], pt[1], t))
 
         # 2. Predict dynamic obstacles
-        preds = self.predictor.predict_all(agents, horizon_s=4.0, dt=step_dt)
+        all_agents = list(agents)
+        preds = self.predictor.predict_all(all_agents, horizon_s=4.0, dt=step_dt)
 
         # 3. Calculate TTC
-        ttc, culprit = self.compute_ttc(ego_traj, preds, agents)
+        ttc, culprit = self.compute_ttc(ego_traj, preds, all_agents)
 
         # 4. Check static / costmap obstruction ahead
         path_blocked = self.check_path_blocked(planned_path, costmap)
@@ -145,6 +148,24 @@ class SafetyController:
 
         if ttc <= self.ttc_warning_s:
             return SafetyState.SLOW, ttc, f"Low TTC ({ttc:.2f}s) with agent {culprit}; slowing down"
+
+        # Idea C: Check occlusion phantom risk ahead (approaching blind zone adjacent to obstacle)
+        if occlusion_mask is not None and planned_path:
+            check_steps = min(len(planned_path), 18)
+            for i in range(check_steps):
+                py, px, _ = planned_path[i]
+                iy, ix = int(round(py)), int(round(px))
+                # Check 3x3 neighbourhood for occlusion boundary
+                r_min, r_max = max(0, iy - 2), min(costmap.H, iy + 3)
+                c_min, c_max = max(0, ix - 2), min(costmap.W, ix + 3)
+                if np.any(occlusion_mask[r_min:r_max, c_min:c_max]):
+                    return SafetyState.YIELD, ttc, "Approaching blind occlusion zone (Idea C phantom risk); slowing pre-emptively"
+
+        if phantom_agents:
+            phantom_preds = self.predictor.predict_all(phantom_agents, horizon_s=3.0, dt=step_dt)
+            p_ttc, p_id = self.compute_ttc(ego_traj, phantom_preds, phantom_agents)
+            if p_ttc <= self.ttc_warning_s * 1.2:
+                return SafetyState.YIELD, p_ttc, f"Precautionary yield for phantom agent {p_id} in blind zone"
 
         # Check local uncertainty (Idea B) in the near corridor
         iy, ix = int(round(ego_y)), int(round(ego_x))

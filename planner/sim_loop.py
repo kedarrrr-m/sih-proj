@@ -24,6 +24,8 @@ from .costmap import CostMap
 from .hybrid_a_star import HybridAStarPlanner, PlanResult, normalize_angle
 from .prediction import TrackedAgent
 from .safety import SafetyController, SafetyState
+from .occlusion import compute_occlusion_mask, place_phantom_agents, compute_occlusion_cost
+from .behaviour import BehaviourClass, classify_behaviour, compute_behaviour_cost
 
 
 class ClosedLoopSimulator:
@@ -132,10 +134,16 @@ class ClosedLoopSimulator:
                         cost_val=np.inf
                     )
 
+            # Occlusion awareness & phantom agents (Idea C)
+            ey_idx, ex_idx = int(round(self.ego_y)), int(round(self.ego_x))
+            occ_mask = compute_occlusion_mask(self.occ, ey_idx, ex_idx)
+            phantoms = place_phantom_agents(occ_mask, self.occ, ey_idx, ex_idx) if not hazard_detected else []
+
             # Safety state evaluation
             state, min_ttc, reason = self.safety.evaluate(
                 self.ego_y, self.ego_x, self.ego_v,
-                self.active_path, self.costmap, active_agents
+                self.active_path, self.costmap, active_agents,
+                phantom_agents=phantoms, occlusion_mask=occ_mask
             )
             self.history_states.append(state.value)
             self.history_ttc.append(min_ttc if np.isfinite(min_ttc) else 10.0)
