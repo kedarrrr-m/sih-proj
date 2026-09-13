@@ -8,8 +8,8 @@ description: Enforces phase-by-phase implementation of the household-orchestrati
 Guardrail skill: do exactly one phase, then stop. Never auto-continue to the next.
 
 ## Read first
-1. `docs/build_map.md` and `docs/plan.md` — source of truth for phase scope. Re-read fresh each run.
-2. `docs/progress.md` — source of truth for what's done. 
+1. `doc/build_map.md` and `doc/plan.md` — source of truth for phase scope. Re-read fresh each run.
+2. `doc/progress.md` — source of truth for what's done. 
 3. Existing code for files the phase touches.
 
 ## Workflow (every step, in order, no skipping)
@@ -43,7 +43,7 @@ implementing out of order.
 ## Report, then stop
 State: phase done, files changed, test results (pass/fail counts), acceptance
 criteria met/not met, known limitations, next phase + its dependency on this one.
-Update `docs/progress.md` with the same. Then stop — do not start the next
+Update `doc/progress.md` with the same. Then stop — do not start the next
 phase's work in any form until the user explicitly says to proceed.
 
 ## Invocation
